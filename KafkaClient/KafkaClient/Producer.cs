@@ -30,7 +30,9 @@ namespace KafkaClient
                 // Duration to retry before next attempt
                 RetryBackoffMs = 1000,
                 // Set to true if you don't want to reorder messages on retry
-                EnableIdempotence = true
+                //EnableIdempotence = true,
+                //ApiVersionRequest = true,
+                //BrokerVersionFallback = "2.3.0"
             };
         }
 

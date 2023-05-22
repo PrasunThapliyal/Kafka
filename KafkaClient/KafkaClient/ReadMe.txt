@@ -35,3 +35,64 @@ ref: (****) https://thecloudblog.net/post/building-reliable-kafka-producers-and-
 ref: https://thecloudblog.net/post/building-reliable-kafka-producers-and-consumers-in-net/
 	Building Reliable Kafka Producers and Consumers in .NET
 
+22 May 2023
+===========
+
+Try connecting to the Kafka containers that come with BP2 instead of creating our own new containers
+	The big issue is that the BP2 containers do not publish advertized listeners. Instead, they send the IP address of the broker to the client, eg 172.16.0.12
+
+	So for eg if we are creating a consumer, once the consumer gets meta from the broker, it tries connecting to 172.16.0.12 .. which my local windows machine does not know
+
+	Read this for an understaning:	
+	ref: (****) My Python/Java/Spring/Go/Whatever Client Won’t Connect to My Apache Kafka Cluster in Docker/AWS/My Brother’s Laptop. Please Help!
+		https://www.confluent.io/blog/kafka-client-cannot-connect-to-broker-on-aws-on-docker-etc/
+
+	Step 1:
+		From our local system, create a tunnel from localhost:9092 to onxv1339 -> 172.16.0.12:9092
+	Step 2:
+		Create a Kafka client (This code), set bootstrap server = localhost:9092
+	Step 3:
+		Add a route to Windows route table to redirect all traffic destined for 172.16.0.12 to the default gateway, 
+		and this must be accompanied by another tunnel from 172.16.0.12:9092 (my laptop) to 172.16.0.12:9092 (on onxv1339)
+	Step 4:
+		Run the client, choose consumer, the topic is "bp.equipmenttopologyplanning.v1.websocketgenericpushtopic", and for this the Key and Value are strings (UTF8)
+	----------------------------------------------------
+	Some elaborations for above steps.
+	Note, I define the tunnels in Steps 1 and 3 in one go, when we reach Step 3. But for understanding, its easier to read steps in order
+
+	Step 2: (ref: https://serverfault.com/questions/712970/can-i-redirect-route-ip-adress-to-another-ip-address-windows)
+		CIENA+pthapliy@DESKTOP-V99LATL MINGW64 /c/GIT/MyPersonal/Kafka (master)
+		$ netsh int ip sh int
+
+		Idx     Met         MTU          State                Name
+		---  ----------  ----------  ------------  ---------------------------
+		  1          75  4294967295  connected     Loopback Pseudo-Interface 1
+		 16          35        1500  connected     Wi-Fi
+		 10          25        1500  disconnected  Local Area Connection* 1
+		 14          65        1500  disconnected  Bluetooth Network Connection
+		 12          25        1500  disconnected  Local Area Connection* 2
+
+
+		CIENA+pthapliy@DESKTOP-V99LATL MINGW64 /c/GIT/MyPersonal/Kafka (master)
+		$ netsh int ip add addr 1 172.16.0.12/32 st=ac sk=tr
+
+
+		CIENA+pthapliy@DESKTOP-V99LATL MINGW64 /c/GIT/MyPersonal/Kafka (master)
+		$ tracert 172.16.0.12
+
+		Tracing route to DESKTOP-V99LATL.ciena.com [172.16.0.12]
+		over a maximum of 30 hops:
+
+		  1    <1 ms    <1 ms    <1 ms  DESKTOP-V99LATL.ciena.com [172.16.0.12]
+
+		Trace complete.
+
+		CIENA+pthapliy@DESKTOP-V99LATL MINGW64 /c/GIT/MyPersonal/Kafka (master)
+		$ netsh int ip delete  addr 1 172.16.0.12
+
+	Steps 1 and 3:
+		CIENA+pthapliy@DESKTOP-V99LATL MINGW64 ~
+		$ ssh root@onxv1339.ott.ciena.com -CNL localhost:9092:172.16.0.12:9092 -CNL 172.16.0.12:9092:172.16.0.12:9092
+		root@onxv1339.ott.ciena.com's password:
+
+
