@@ -8,9 +8,9 @@ namespace KafkaClient
     {
         // On onxv1339, Kafka config is stored here: [x] /bp2/data/config/server-config
 
-        private const string BootstrapServer = "localhost:9092";
-        private const string TopicName = "bp.equipmenttopologyplanning.v1.websocketgenericpushtopic";
-        //private const string TopicName = "TestTopic";
+        private const string BootstrapServer = "onxv1339.ott.ciena.com:9092";
+        //private const string TopicName = "bp.equipmenttopologyplanning.v1.websocketgenericpushtopic";
+        private const string TopicName = "TestTopic";
 
         static async Task Main(string[] args)
         {

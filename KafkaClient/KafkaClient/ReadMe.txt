@@ -26,6 +26,17 @@ ref: (****) https://www.youtube.com/watch?v=R873BlNVUB4
 			26049fbf4065        confluentinc/cp-kafka                                                      "/etc/confluent/docke"   About a minute ago   Up About a minute        0.0.0.0:9092->9092/tcp                                 ptKafka
 			8ab567f468e5        artifactory.ciena.com/blueplanet/kafka:3.5.1-k2.3.0                        "supervisord -c /yeti"   2 weeks ago          Up 2 weeks               8080/tcp, 9092/tcp                                     kafka_3.5.1-k2.3.0_0
 
+
+		Update: 22 May 2023
+		If you want to spin up new containers on onxv1339, follow this:
+			ref: https://levelup.gitconnected.com/using-kafka-with-docker-4520c2e6cfd
+	
+			Zookeeper:
+				docker run --name ptZookeeper -p 2181:2181 -e ZOOKEEPER_CLIENT_PORT=2181 -d confluentinc/cp-zookeeper:7.3.2
+			Kafka
+				docker run -p 9092:9092 --name ptKafka  -e KAFKA_ZOOKEEPER_CONNECT=onxv1339.ott.ciena.com:2181 -e KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://onxv1339.ott.ciena.com:9092 -e KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1 -d confluentinc/cp-kafka:7.3.2
+
+			And you dont need wlan0
 ref: (****) https://thecloudblog.net/post/building-reliable-kafka-producers-and-consumers-in-net/
 	Building Reliable Kafka Producers and Consumers in .NET
 		

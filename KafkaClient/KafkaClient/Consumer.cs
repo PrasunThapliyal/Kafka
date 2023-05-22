@@ -27,8 +27,8 @@
 
         public void StartReceivingMessages(string topicName)
         {
-            using var consumer = new ConsumerBuilder<string, string>(_consumerConfig)
-                .SetKeyDeserializer(Deserializers.Utf8)
+            using var consumer = new ConsumerBuilder<long, string>(_consumerConfig)
+                .SetKeyDeserializer(Deserializers.Int64)
                 .SetValueDeserializer(Deserializers.Utf8)
                 .SetErrorHandler((_, e) => Console.WriteLine($"Error: {e.Reason}"))
                 .Build();
